@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """ standard """
-import ConfigParser
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
 from random import randint
 import re
 import sys
@@ -14,7 +17,7 @@ from threatconnect.Config.FilterOperator import FilterSetOperator
 config_file = "tc.conf"
 
 # retrieve configuration file
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(config_file)
 
 try:
@@ -23,7 +26,7 @@ try:
     api_default_org = config.get('threatconnect', 'api_default_org')
     api_base_url = config.get('threatconnect', 'api_base_url')
     api_result_limit = int(config.get('threatconnect', 'api_result_limit'))
-except ConfigParser.NoOptionError:
+except configparser.NoOptionError:
     print('Could not retrieve configuration file.')
     sys.exit(1)
 

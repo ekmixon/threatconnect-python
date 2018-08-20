@@ -633,8 +633,12 @@ class ThreatConnect:
                     if not isinstance(data, list):
                         data = [data]  # for single results to be a list
                     for item in data:
-                        obj_list.append(
-                            parse_group(item, ResourceType.GROUPS, resource_obj, ro.description, ro.request_uri))
+                        if item.get('type') in self.group_types:
+                            obj_list.append(parse_group(
+                                item, ResourceType.GROUPS, resource_obj, ro.description,
+                                ro.request_uri))
+                        else:
+                            self.tcl.debug('Skipping unsupported Group Type')
 
                 #
                 # FILES
@@ -963,6 +967,27 @@ class ThreatConnect:
                 raise AttributeError(ErrorCodes.e0160.value.format(cr))
 
         self._indicators_regex[type_enum.name] = cr_list
+
+    @property
+    def group_types(self):
+        """Return all defined ThreatConnect Group types.
+
+        Returns:
+            (list): A list of ThreatConnect Group types.
+        """
+        return [
+            'Adversary',
+            'Campaign',
+            'Document',
+            'Email',
+            # 'Event',
+            'Incident',
+            # 'Intrusion Set',
+            'Signature',
+            # 'Report',
+            'Threat',
+            'Task'
+        ]
 
     #
     # Resources

@@ -1,13 +1,4 @@
-""" standard """
-import csv
-import json
-import urllib
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-""" custom """
+""" Owner Members Object """
 
 import ApiProperties
 from Config.ResourceType import ResourceType

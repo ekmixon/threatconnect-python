@@ -1,5 +1,8 @@
 # Release Notes
 
+## 2.4.21
++ Update to skip unsupported group types.
+
 ## 2.4.20
 + Added missing pytz module dependency.
 + Updated test cases.

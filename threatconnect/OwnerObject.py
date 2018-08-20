@@ -1,7 +1,10 @@
 """ standard """
 import csv
 import json
-import urllib
+try:
+    from urllib import quote  # Python 2
+except ImportError:
+    from urllib.parse import quote  # Python 3
 try:
     from StringIO import StringIO
 except ImportError:
@@ -95,7 +98,7 @@ class OwnerObject(object):
     @staticmethod
     def _urlsafe(data):
         """ url encode value for safe request """
-        return urllib.quote(data, safe='~')
+        return quote(data, safe='~')
 
     """ group object methods """
 
@@ -321,7 +324,7 @@ class OwnerObjectAdvanced(OwnerObject):
         ro.set_request_uri(prop['uri'].format(self._id))
         ro.set_resource_type(ResourceType.OWNER_METRICS)
         api_response = self._tc.api_request(ro)
-        
+
         if api_response.headers['content-type'] == 'application/json':
             api_response_dict = api_response.json()
             if api_response_dict['status'] == 'Success':

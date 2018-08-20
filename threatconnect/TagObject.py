@@ -1,3 +1,5 @@
+"""ThreatConnect Tag Object"""
+
 def parse_tag(tag_dict):
     """ """
     tag = TagObject()
