@@ -134,7 +134,7 @@ host_re = re.compile(host_pat)
 #
 # url indicator (this regex needs some work)
 #
-url_pat = r"""\b(https?|sftp|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;'"*$()]*[a-zA-Z0-9+&@#/%=~_|]"""
+url_pat = r"""\b(https?|sftp|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;'"*$()]*[a-zA-Z0-9+&@#/%=~_|?]"""
 url_re = re.compile(url_pat)
 
 indicators_regex = {
