@@ -1,9 +1,9 @@
 threatconnect-python
 =========================
 
-> This module has been deprecated and is now replaced with the https://github.com/ThreatConnect-Inc/tcex module. For working with the ThreatConnect REST API see the docs on the TcEx TI (Threat Intelligence) module (https://threatconnect-inc.github.io/tcex/module_ti.html). For Apps written outside of ThreatConnect Exchange see the section on External App Templates (https://threatconnect-inc.github.io/tcex/building_apps_tcinit.html#external-app-templates).
+**Deprecation Notice**
 
-[![Build Status](https://travis-ci.org/ThreatConnect-Inc/threatconnect-python.svg?branch=master)](https://travis-ci.org/ThreatConnect-Inc/threatconnect-python)
+> This module has been deprecated and is now replaced with the https://github.com/ThreatConnect-Inc/tcex module. For working with the ThreatConnect REST API see the docs on the TcEx TI (Threat Intelligence) module (https://threatconnect-inc.github.io/tcex/module_ti.html). For Apps written outside of ThreatConnect Exchange see the section on External App Templates (https://threatconnect-inc.github.io/tcex/building_apps_tcinit.html#external-app-templates).
 
 The threatconnect-python project is a part of the ThreatConnect&trade; SDK.
 This module implement methods that can be used to push or pull data from the [ThreatConnect V2 REST API](https://docs.threatconnect.com/en/latest/rest_api/rest_api.html).
