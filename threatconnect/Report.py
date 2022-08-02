@@ -99,12 +99,7 @@ class Report(object):
     @property
     def stats(self):
         """ """
-        report = '\n{0!s:_^80}\n'.format('Stats')
-
-        #
-        # api stats
-        #
-        report += '\n{0!s:40}\n'.format('API Stats')
+        report = '\n{0!s:_^80}\n'.format('Stats') + '\n{0!s:40}\n'.format('API Stats')
         report += '  {0!s:<29}{1!s:<50}\n'.format('API Calls', self.api_calls)
         report += '  {0!s:<29}{1!s:<50}\n'.format('Unfiltered Results', self.results_unfiltered)
         report += '  {0!s:<29}{1!s:<50}\n'.format('Filtered Results', self.results_filtered)
@@ -179,5 +174,4 @@ class Report(object):
 
     def __iter__(self):
         """ """
-        for ro in self._report_objects:
-            yield ro
+        yield from self._report_objects

@@ -1,12 +1,16 @@
 """ThreatConnect SDK setup.py"""
+
 import re
 import sys
 from setuptools import setup, find_packages
 
 with open('threatconnect/__init__.py', 'r') as fd:
     version = re.search(
-        r'^__version__(?:\s+)?=(?:\s+)?[\'|\"]((?:[0-9]{1,3}(?:\.)?){1,3})[\'|\"]', fd.read(),
-        re.MULTILINE).group(1)
+        r'^__version__(?:\s+)?=(?:\s+)?[\'|\"]((?:[0-9]{1,3}(?:\.)?){1,3})[\'|\"]',
+        fd.read(),
+        re.MULTILINE,
+    )[1]
+
 
 # set download URL which requires a "release"
 download_url = 'https://github.com/ThreatConnect-Inc/threatconnect-python/archive/{}.tar.gz'

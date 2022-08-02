@@ -37,10 +37,8 @@ class FileOccurrenceObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     """ shared file occurrence methods """
 
@@ -98,12 +96,10 @@ class FileOccurrenceObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('File Occurrence Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'File Occurrence Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('date', self.date))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('file_name', self.file_name))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('id', self.id))

@@ -40,21 +40,19 @@ class Owners(Resource):
 
     def get_owner_by_id(self, data_int):
         """ return owner by id """
-        if isinstance(data_int, int):
-            for obj in self._objects:
-                if obj.id == data_int:
-                    return obj
-        else:
+        if not isinstance(data_int, int):
             return None
+        for obj in self._objects:
+            if obj.id == data_int:
+                return obj
 
     def get_owner_by_name(self, data):
         """ return owner by name """
-        if isinstance(data, (str, unicode)):
-            for obj in self._objects:
-                if obj.name == data:
-                    return obj
-        else:
+        if not isinstance(data, (str, unicode)):
             return None
+        for obj in self._objects:
+            if obj.name == data:
+                return obj
 
     @property
     def names(self):
@@ -79,9 +77,7 @@ class Owners(Resource):
             api_response_dict = api_response.json()
             if api_response_dict['status'] == 'Success':
                 data = api_response_dict['data']['ownerMetric']
-                for item in data:
-                    metrics.append(parse_metrics(item))
-
+                metrics.extend(parse_metrics(item) for item in data)
         return metrics  # if class is called directly
 
     def retrieve_members(self):
@@ -101,9 +97,7 @@ class Owners(Resource):
             api_response_dict = api_response.json()
             if api_response_dict['status'] == 'Success':
                 data = api_response_dict['data']['user']
-                for item in data:
-                    members.append(parse_member(item))
-
+                members.extend(parse_member(item) for item in data)
         return members  # if class is called directly
 
     def retrieve_mine(self):

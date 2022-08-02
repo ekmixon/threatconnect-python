@@ -103,10 +103,8 @@ class VictimAssetObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     """ victim asset methods """
 
@@ -167,10 +165,12 @@ class VictimAssetObject(object):
     @property
     def gen_body(self):
         """ generate json body for POST and PUT API requests """
-        body_dict = {}
-        for prop, values in self._properties.items():
-            if getattr(self, prop) is not None:
-                body_dict[values['api_field']] = getattr(self, prop)
+        body_dict = {
+            values['api_field']: getattr(self, prop)
+            for prop, values in self._properties.items()
+            if getattr(self, prop) is not None
+        }
+
         return json.dumps(body_dict)
 
     #
@@ -251,7 +251,7 @@ class VictimAssetObject(object):
 
     def set_type(self, data):
         """Read-Only victim asset metadata"""
-        if data == 'EmailAddress' or data == ResourceType.VICTIM_EMAIL_ADDRESSES:
+        if data in ['EmailAddress', ResourceType.VICTIM_EMAIL_ADDRESSES]:
             self._resource_type = ResourceType.VICTIM_EMAIL_ADDRESSES
             self._type = data
             self._uri_attribute = 'emailAddresses'
@@ -266,7 +266,7 @@ class VictimAssetObject(object):
                 'method': 'set_address_type',
                 'required': True,
             }
-        elif data == 'NetworkAccount' or data == ResourceType.VICTIM_NETWORK_ACCOUNTS:
+        elif data in ['NetworkAccount', ResourceType.VICTIM_NETWORK_ACCOUNTS]:
             self._resource_type = ResourceType.VICTIM_NETWORK_ACCOUNTS
             self._type = data
             self._uri_attribute = 'networkAccounts'
@@ -281,7 +281,7 @@ class VictimAssetObject(object):
                 'method': 'set_network',
                 'required': True,
             }
-        elif data == 'Phone' or data == ResourceType.VICTIM_PHONES:
+        elif data in ['Phone', ResourceType.VICTIM_PHONES]:
             self._resource_type = ResourceType.VICTIM_PHONES
             self._type = data
             self._uri_attribute = 'phoneNumbers'
@@ -291,7 +291,7 @@ class VictimAssetObject(object):
                 'method': 'set_phone_type',
                 'required': True,
             }
-        elif data == 'SocialNetwork' or data == ResourceType.VICTIM_SOCIAL_NETWORKS:
+        elif data in ['SocialNetwork', ResourceType.VICTIM_SOCIAL_NETWORKS]:
             self._resource_type = ResourceType.VICTIM_SOCIAL_NETWORKS
             self._type = data
             self._uri_attribute = 'socialNetworks'
@@ -306,7 +306,7 @@ class VictimAssetObject(object):
                 'method': 'set_network',
                 'required': True,
             }
-        elif data == 'WebSite' or data == ResourceType.VICTIM_WEBSITES:
+        elif data in ['WebSite', ResourceType.VICTIM_WEBSITES]:
             self._resource_type = ResourceType.VICTIM_WEBSITES
             self._type = data
             self._uri_attribute = 'webSites'
@@ -363,12 +363,10 @@ class VictimAssetObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Victim Asset Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Victim Asset Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('id', self.id))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('name', self.name))
         for prop in sorted(self._properties.keys()):

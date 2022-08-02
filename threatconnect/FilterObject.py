@@ -63,8 +63,7 @@ class FilterObject(object):
     @property
     def post_filters(self):
         """ """
-        for obj in self._post_filters:
-            yield obj
+        yield from self._post_filters
 
     @property
     def post_filters_len(self):
@@ -79,10 +78,12 @@ class FilterObject(object):
     @property
     def filters(self):
         """ """
-        filters = []
-        for resultFilter in sorted(self._api_filter_names):
-            if re.findall('^add_', resultFilter):
-                filters.append(resultFilter)
+        filters = [
+            resultFilter
+            for resultFilter in sorted(self._api_filter_names)
+            if re.findall('^add_', resultFilter)
+        ]
+
         for resultFilter in sorted(self._post_filter_names):
             if re.findall('^add_', resultFilter):
                 filters.append(resultFilter)
@@ -110,8 +111,7 @@ class FilterObject(object):
 
     def __iter__(self):
         """ """
-        for obj in self._request_objects:
-            yield obj
+        yield from self._request_objects
 
     def __len__(self):
         """ """
@@ -119,8 +119,10 @@ class FilterObject(object):
 
     def __str__(self):
         """ """
-        printable_string = '\n{0:_^80}\n'.format('Filter Object')
-        printable_string += '{0:40}\n'.format('Filter Properties')
+        printable_string = '\n{0:_^80}\n'.format(
+            'Filter Object'
+        ) + '{0:40}\n'.format('Filter Properties')
+
         printable_string += '  {0:<29}{1:<50}\n'.format('Operator', self.operator)
         printable_string += '  {0:<29}{1:<50}\n'.format('Request Objects', len(self._request_objects))
 

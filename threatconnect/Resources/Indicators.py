@@ -55,30 +55,29 @@ class Indicators(Resource):
     def add(self, indicator, owner=None, type=None, api_entity=None):
         """ add indicator to resource container """
         if type is not None:
-            if isinstance(type, IndicatorType):
-                if type == IndicatorType.CUSTOM_INDICATORS and not isinstance(indicator, OrderedDict):
-                    # change dicts to be Ordered before calling set_indicator
-                    field_names = self.tc.indicator_parser.get_field_labels_by_api_entity(api_entity)
-                    ordered_indicator = OrderedDict()
-                    for field_name in field_names:
-                        ordered_indicator[field_name] = indicator.get(field_name)
-
-                    indicator = ordered_indicator
-
-                # generate unique temporary id
-                resource_id = uuid.uuid4().int
-
-                # resource object
-                resource_obj = self.tc.indicator_parser.construct_typed_indicator(ResourceType(type.value), api_entity=api_entity)
-                resource_obj.set_id(int(resource_id))  # set temporary resource id
-                resource_obj.set_indicator(indicator, ResourceType(type.value), False)
-                resource_obj.set_owner_name(owner)
-                resource_obj.set_phase(1)  # set resource api phase (1 = add)
-
-                return self._method_wrapper(resource_obj)
-
-            else:
+            if not isinstance(type, IndicatorType):
                 raise AttributeError(ErrorCodes.e10060.name.format(indicator))
+
+            if type == IndicatorType.CUSTOM_INDICATORS and not isinstance(indicator, OrderedDict):
+                # change dicts to be Ordered before calling set_indicator
+                field_names = self.tc.indicator_parser.get_field_labels_by_api_entity(api_entity)
+                ordered_indicator = OrderedDict()
+                for field_name in field_names:
+                    ordered_indicator[field_name] = indicator.get(field_name)
+
+                indicator = ordered_indicator
+
+            # generate unique temporary id
+            resource_id = uuid.uuid4().int
+
+            # resource object
+            resource_obj = self.tc.indicator_parser.construct_typed_indicator(ResourceType(type.value), api_entity=api_entity)
+            resource_obj.set_id(int(resource_id))  # set temporary resource id
+            resource_obj.set_indicator(indicator, ResourceType(type.value), False)
+            resource_obj.set_owner_name(owner)
+            resource_obj.set_phase(1)  # set resource api phase (1 = add)
+
+            return self._method_wrapper(resource_obj)
 
         elif SharedMethods.validate_indicator(self.tc._indicators_regex, indicator):
             # validate indicator
@@ -171,10 +170,7 @@ class Indicators(Resource):
     @property
     def indicators_list(self):
         """ return list of indicators """
-        indicators = []
-        for obj in self._objects:
-            indicators.append(obj.indicator)
-        return indicators
+        return [obj.indicator for obj in self._objects]
 
     def set_modified_since(self, data):
         """ set modified time for api query string """

@@ -46,10 +46,8 @@ class DnsResolutionObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     """ shared dns resolution methods """
 
@@ -107,12 +105,10 @@ class DnsResolutionObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('DNS Resolution Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'DNS Resolution Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('ip', self.ip))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('owner_name', self.owner_name))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('resolution_date', self.resolution_date))

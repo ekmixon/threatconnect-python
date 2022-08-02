@@ -41,25 +41,29 @@ class ApiLoggingHandler(FileHandler):
         super(ApiLoggingHandler, self).emit(record)
 
     def log_to_api(self):
-        if len(self.entries) > 0:
-            # make api call
-            ro = RequestObject()
-            ro.set_http_method('POST')
-            ro.set_owner_allowed(True)
-            ro.set_resource_pagination(False)
-            ro.set_request_uri('/v2/logs/app')
-            ro.set_body(dumps(self.entries))
+        if len(self.entries) <= 0:
+            return
+        # make api call
+        ro = RequestObject()
+        ro.set_http_method('POST')
+        ro.set_owner_allowed(True)
+        ro.set_resource_pagination(False)
+        ro.set_request_uri('/v2/logs/app')
+        ro.set_body(dumps(self.entries))
 
             # retrieve and display the results; don't log during api request so we don't end up with duplicate info
-            try:
-                self.tc.api_request(ro, log=False)
-            except RuntimeError as re:
+        try:
+            self.tc.api_request(ro, log=False)
+        except RuntimeError as re:
                 # can't really do anything if it fails
-                error_data = {'levelname': 'ERROR',
-                              'created': time.time(),
-                              'msg': 'API LOGGING FAILURE -- Unable to send log entries to api: {}'.format(self.entries)}
-                lr = makeLogRecord(error_data)
-                self.entries = []
-                self.emit(lr)
+            error_data = {
+                'levelname': 'ERROR',
+                'created': time.time(),
+                'msg': f'API LOGGING FAILURE -- Unable to send log entries to api: {self.entries}',
+            }
 
+            lr = makeLogRecord(error_data)
             self.entries = []
+            self.emit(lr)
+
+        self.entries = []

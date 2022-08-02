@@ -85,7 +85,7 @@ def uni(data):
         return data
     elif isinstance(data, unicode):
         return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-    elif not isinstance(data, unicode):
+    else:
         return unicode(data, 'utf-8', errors='ignore')
 
 
@@ -110,8 +110,4 @@ def validate_indicator(indicators_regex, indicator):
 
 def validate_rating(rating):
     """ """
-    if rating in ["1.0", "2.0", "3.0", "4.0", "5.0", 0, 1, 2, 3, 4, 5]:
-        return True
-
-    # todo - make this a bit more robust, 0?
-    return False
+    return rating in ["1.0", "2.0", "3.0", "4.0", "5.0", 0, 1, 2, 3, 4, 5]

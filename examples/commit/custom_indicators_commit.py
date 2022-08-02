@@ -48,8 +48,8 @@ def main():
         print('Error: {0!s}'.format(e))
         sys.exit(1)
 
-    print "# of indicators retrieved: {}".format(len(resources))
-
+    # set threat connect log (tcl) level
+    tc.set_tcl_file('log/tc.log', 'debug')
     fruit = OrderedDict()
     fruit['size'] = 'large'
     fruit['shape'] = 'triangluar'
@@ -57,9 +57,7 @@ def main():
 
     known_resource = resources.add('0.1.1.0', owner=owner, type=IndicatorType.ADDRESSES)
 
-    fruit_without_order = dict()
-    fruit_without_order['size'] = 'petite'
-    fruit_without_order['shape'] = 'rotund'
+    fruit_without_order = {'size': 'petite', 'shape': 'rotund'}
     resource_without_order = resources.add(fruit_without_order, owner=owner, type=IndicatorType.CUSTOM_INDICATORS, api_entity='fruit')
 
     try:

@@ -167,7 +167,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
         """ mark an indicator as a false positive"""
         ro = self._create_basic_request_object('false_positive_add')
 
-        ro.set_description('Adding false positive to {}'.format(self._reference_indicator))
+        ro.set_description(f'Adding false positive to {self._reference_indicator}')
         self._resource_container.add_commit_queue(self.id, ro)
 
     def add_file_occurrence(self, fo_file_name=None, fo_path=None, fo_date=None):
@@ -201,7 +201,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
             body['dateObserved'] = date_observed
 
         ro.set_body(json.dumps(body))
-        ro.set_description('add observation to {}'.format(self._reference_indicator))
+        ro.set_description(f'add observation to {self._reference_indicator}')
         self._resource_container.add_commit_queue(self.id, ro)
 
     def add_tag(self, tag):
@@ -233,7 +233,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
             if getattr(self, prop) is not None:
                 # handle custom indicators
                 if prop == '_custom_fields':
-                    body_dict.update(getattr(self, prop))
+                    body_dict |= getattr(self, prop)
                 else:
                     body_dict[values['api_field']] = getattr(self, prop)
         return json.dumps(body_dict)
@@ -261,17 +261,9 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
         # The value should be integer 1-10 with 10 be highest.
         # If threatconnect only goes up to 5 some modifications might be a good idea.
         # This could be an algorithm between rating and confidence
-        if self.rating is not None:
-            cef_severity = (self.rating * 2)
-        else:
-            cef_severity = 0
-
+        cef_severity = (self.rating * 2) if self.rating is not None else 0
         # CEF Name (description) - string
-        if self.description is not None:
-            cef_name = self.description
-        else:
-            cef_name = "null"
-
+        cef_name = self.description if self.description is not None else "null"
         #
         # CEF Extension
         #
@@ -279,21 +271,17 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
 
         for k, v in sorted(self._structure.items()):
             # handle file indicators
-            if k == 'md5':
+            if k == 'custom_fields':
+                for label, value in getattr(self, v).items():
+                    cef_extension += '{0}="{1}" '.format(label, value)
+            elif k in ['description', 'id', 'rating']:
+                continue  # used above
+            elif k == 'md5':
                 cef_extension += '{0}="{1}" '.format(k, getattr(self, v)['md5'])
             elif k == 'sha1':
                 cef_extension += '{0}="{1}" '.format(k, getattr(self, v)['sha1'])
             elif k == 'sha256':
                 cef_extension += '{0}="{1}" '.format(k, getattr(self, v)['sha256'])
-            elif k == 'description':
-                continue  # used above
-            elif k == 'id':
-                continue  # used above
-            elif k == 'rating':
-                continue  # used above
-            elif k == 'custom_fields':
-                for label, value in getattr(self, v).items():
-                    cef_extension += '{0}="{1}" '.format(label, value)
             else:
                 cef_extension += '{0}="{1}" '.format(k, self.cef_format_extension(getattr(self, v)))
 
@@ -415,10 +403,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
     def csv_header(self):
         """ return the object in json format """
 
-        csv_dict = {}
-        for k, v in self._basic_structure.items():
-            csv_dict[k] = v
-
+        csv_dict = dict(self._basic_structure.items())
         outfile = StringIO()
         # not supported in python 2.6
         # writer = csv.DictWriter(outfile, fieldnames=sorted(csv_dict.keys()))
@@ -484,7 +469,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
         ro = self._create_basic_request_object('observations_get')
 
         ro.set_owner(self.owner_name)
-        ro.set_description('retrieve observations for {}'.format(self._reference_indicator))
+        ro.set_description(f'retrieve observations for {self._reference_indicator}')
 
         for item in self._tc.result_pagination(ro, 'observation'):
             yield parse_observation(item)
@@ -546,7 +531,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
         json_dict = {}
         # handle custom indicators
         if self.custom_fields is not None:
-            json_dict.update(self.custom_fields)
+            json_dict |= self.custom_fields
         for k, v in self._structure.items():
             # handle file indicators
             if k == 'md5':
@@ -706,7 +691,7 @@ class IndicatorObjectAdvanced(AddressIndicatorObject,
             note this is not the same as observations and will be stored on the indicator """
         ro = self._create_basic_request_object('observation_count_get')
 
-        ro.set_description('load observation count for {}'.format(self._reference_indicator))
+        ro.set_description(f'load observation count for {self._reference_indicator}')
 
         api_response = self._tc.api_request(ro)
 

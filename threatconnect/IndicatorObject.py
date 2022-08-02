@@ -173,14 +173,13 @@ class IndicatorObject(object):
 
     def set_confidence(self, data, update=True):
         """Read-Write indicator metadata"""
-        if isinstance(data, int):
-            if 0 <= data <= 100:
-                self._confidence = data
-            else:
-                raise AttributeError(ErrorCodes.e10010.value.format(data))
-        else:
+        if not isinstance(data, int):
             raise AttributeError(ErrorCodes.e10011.value.format(data))
 
+        if 0 <= data <= 100:
+            self._confidence = data
+        else:
+            raise AttributeError(ErrorCodes.e10010.value.format(data))
         if update and self._phase == 0:
             self._phase = 2
 
@@ -192,12 +191,11 @@ class IndicatorObject(object):
         return self._custom_fields
 
     def set_custom_fields(self, data):
-        if self.resource_type == ResourceType.CUSTOM_INDICATORS:
-            # data = data if isinstance(data, list) else [data]
-            if isinstance(self._custom_fields, OrderedDict):
-                self._custom_fields = uni(data)
-        else:
+        if self.resource_type != ResourceType.CUSTOM_INDICATORS:
             raise AttributeError(ErrorCodes.e10100.value)
+        # data = data if isinstance(data, list) else [data]
+        if isinstance(self._custom_fields, OrderedDict):
+            self._custom_fields = uni(data)
 
     # def add_custom_fields(self, fields):
     #     if isinstance(fields, list):
@@ -277,14 +275,12 @@ class IndicatorObject(object):
     def add_dns_resolution(self, data_obj):
         """Read-Only indicator metadata"""
         self._dns_resolutions = self._dns_resolutions if self._dns_resolutions is not None else []
-        if self._resource_type == ResourceType.HOSTS:
-            if isinstance(data_obj, list):
-                self._dns_resolutions.extend(data_obj)
-            else:
-                self._dns_resolutions.append(data_obj)
-
-        else:
+        if self._resource_type != ResourceType.HOSTS:
             raise AttributeError(ErrorCodes.e10110.value)
+        if isinstance(data_obj, list):
+            self._dns_resolutions.extend(data_obj)
+        else:
+            self._dns_resolutions.append(data_obj)
 
     #
     # file_occurrences (file indicator type specific)
@@ -728,15 +724,13 @@ class IndicatorObject(object):
         """ validate all required fields """
         for prop, values in self._properties.items():
             # special check for file hash
-            if prop in ['_md5', '_sha1', '_sha256']:
-                # if any hash is not None then proceed
-                if self._md5 or self._sha1 or self._sha256:
-                    continue
+            if prop in ['_md5', '_sha1', '_sha256'] and (
+                self._md5 or self._sha1 or self._sha256
+            ):
+                continue
 
-            if values['required']:
-                # fail validation if any required field is None
-                if getattr(self, prop) is None:
-                    return False
+            if values['required'] and getattr(self, prop) is None:
+                return False
 
         # validated
         return True
@@ -747,12 +741,10 @@ class IndicatorObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Resource Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Resource Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('id', self.id))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('api_branch', self.api_branch))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('api_entity', self.api_entity))

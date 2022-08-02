@@ -73,74 +73,25 @@ def main():
 
     # get owner object
     owners = tc.owners()
-    
-    if False:
-        # filter results
-        try:
-            filter1 = owners.add_filter()
-            filter1.add_id(2)
-        except AttributeError as e:
-            print('Error: {0!s}'.format(e))
-            sys.exit(1)
-    
-        # retrieve owners
-        try:
-            owners.retrieve()
-        except RuntimeError as e:
-            print('Error: {0!s}'.format(e))
-            sys.exit(1)
-            
-        for obj in owners:
-            print('\n{0!s:_^80}'.format(obj.name))
-            print('{0!s:<20}{1!s:<50}'.format('ID', obj.id))
-            
-            for metric in obj.metrics:
-                print(metric)
-    
-    if True:
-        # filter results
-        # try:
-        #     filter1 = owners.add_filter()
-        #     filter1.add_id(2)
-        # except AttributeError as e:
-        #     print('Error: {0!s}'.format(e))
-        #     sys.exit(1)
-    
-        # retrieve owners
-        try:
-            metrics = owners.retrieve_metrics()
-        except RuntimeError as e:
-            print('Error: {0!s}'.format(e))
-            sys.exit(1)
-            
-        for metric in metrics:
-            # print('{0!s:<20}{1!s:<50}'.format('Average Indicator Confidence', metric.average_indicator_confidence))
-            print(metric)
-    
-    if False:
-        
-        # retrieve owners
-        try:
-            owners.retrieve_mine()
-        except RuntimeError as e:
-            print('Error: {0!s}'.format(e))
-            sys.exit(1)
-            
-        for owner in owners:
-            print(owner)
-    
-    if False:
-        # retrieve owners
-        try:
-            members = owners.retrieve_members()
-        except RuntimeError as e:
-            print('Error: {0!s}'.format(e))
-            sys.exit(1)
-            
-        for member in members:
-            print('\n{0!s:_^80}'.format(member.user_name))
-            print('{0!s:<20}{1!s:<50}'.format('first name', member.first_name))
-            print('{0!s:<20}{1!s:<50}'.format('last name', member.last_name))
+
+    # filter results
+    # try:
+    #     filter1 = owners.add_filter()
+    #     filter1.add_id(2)
+    # except AttributeError as e:
+    #     print('Error: {0!s}'.format(e))
+    #     sys.exit(1)
+
+    # retrieve owners
+    try:
+        metrics = owners.retrieve_metrics()
+    except RuntimeError as e:
+        print('Error: {0!s}'.format(e))
+        sys.exit(1)
+
+    for metric in metrics:
+        # print('{0!s:<20}{1!s:<50}'.format('Average Indicator Confidence', metric.average_indicator_confidence))
+        print(metric)
             
 
 if __name__ == "__main__":

@@ -87,10 +87,8 @@ class OwnerObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     #
     # urlsafe
@@ -112,13 +110,12 @@ class OwnerObject(object):
 
     def set_id(self, data, update=True):
         """Read-Only group metadata"""
-        if isinstance(data, (int, long)):
-            self._id = data
-
-            if update:
-                self._phase = 2
-        else:
+        if not isinstance(data, (int, long)):
             raise AttributeError(ErrorCodes.e10020.value.format(data))
+        self._id = data
+
+        if update:
+            self._phase = 2
 
     #
     # matched filters
@@ -197,12 +194,10 @@ class OwnerObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Owner Resource Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Owner Resource Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('id', self.id))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('name', self.name))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('type', self.type))
@@ -259,10 +254,7 @@ class OwnerObjectAdvanced(OwnerObject):
     def csv(self):
         """ return the object in json format """
 
-        csv_dict = {}
-        for k, v in self._basic_structure.items():
-            csv_dict[k] = getattr(self, v)
-
+        csv_dict = {k: getattr(self, v) for k, v in self._basic_structure.items()}
         outfile = StringIO()
         writer = csv.DictWriter(outfile, fieldnames=sorted(csv_dict.keys()))
 
@@ -274,10 +266,7 @@ class OwnerObjectAdvanced(OwnerObject):
     def csv_header(self):
         """ return the object in json format """
 
-        csv_dict = {}
-        for k, v in self._basic_structure.items():
-            csv_dict[k] = v
-
+        csv_dict = dict(self._basic_structure.items())
         outfile = StringIO()
         # not supported in python 2.6
         # writer = csv.DictWriter(outfile, fieldnames=sorted(csv_dict.keys()))
@@ -291,21 +280,16 @@ class OwnerObjectAdvanced(OwnerObject):
     @property
     def json(self):
         """ return the object in json format """
-        json_dict = {}
-        for k, v in self._structure.items():
-            json_dict[k] = getattr(self, v)
-
+        json_dict = {k: getattr(self, v) for k, v in self._structure.items()}
         return json.dumps(json_dict, indent=4, sort_keys=True)
 
     @property
     def keyval(self):
         """ return the object in json format """
-        keyval_str = ''
-        for k, v in sorted(self._structure.items()):
-            # handle file indicators
-            keyval_str += '{0}="{1}" '.format(k, getattr(self, v))
-
-        return keyval_str
+        return ''.join(
+            '{0}="{1}" '.format(k, getattr(self, v))
+            for k, v in sorted(self._structure.items())
+        )
 
     def load_data(self, resource_obj):
         """ load data from resource object to self """

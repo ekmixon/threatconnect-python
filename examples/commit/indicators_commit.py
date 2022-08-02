@@ -130,9 +130,13 @@ def main():
                     res.delete_attribute(attribute.id)
                 # add update flag to all attributes that have 'update' in the value.
                 if attribute.type == 'Source' and re.findall('UPDATE', attribute.value):
-                    res.update_attribute(attribute.id, 'UPDATE Test Attribute %s' % rn)
+                    res.update_attribute(attribute.id, f'UPDATE Test Attribute {rn}')
             # (Optional) add attribute to resource with type and value
-            res.add_attribute('Additional Analysis and Context', 'DELETE Test Attribute %s' % rn)
+            res.add_attribute(
+                'Additional Analysis and Context',
+                f'DELETE Test Attribute {rn}',
+            )
+
 
             #
             # working with tags
@@ -180,7 +184,8 @@ def main():
 
     # this requires that the resource was instantiated at the beginning of the script.
     s = '4.3.1.{0:d}'.format(rn)
-    print "S IS {}".format(s)
+    # set threat connect log (tcl) level
+    tc.set_tcl_file('log/tc.log', 'debug')
     resource = resources.add(s, owner=owner, type=IndicatorType.ADDRESSES)
     resource.set_confidence(rn)
     resource.set_rating(randint(1, 5))
@@ -243,7 +248,8 @@ def main():
     resource.set_confidence(rn)
     resource.set_rating(randint(1, 5))
     resource.set_size(rn)
-    fo_date = (datetime.isoformat(datetime(2015, randint(1, 12), randint(1, 29)))) + 'Z'
+    fo_date = f'{datetime.isoformat(datetime(2015, randint(1, 12), randint(1, 29)))}Z'
+
     resource.add_file_occurrence('badfile_{0!s}.exe'.format(rn), 'C:\windows', fo_date)
 
     # (Optional) add attribute to newly created resource

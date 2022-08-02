@@ -42,10 +42,8 @@ class RequestObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     def add_payload(self, key, val):
         """ add a key value pair to payload """
@@ -83,14 +81,13 @@ class RequestObject(object):
     def set_http_method(self, data):
         """ set the http method """
         data = data.upper()
-        if data in ['DELETE', 'GET', 'POST', 'PUT']:
-            self._http_method = data
-
-            # set content type for commit methods
-            if self._content_type is None and data in ['POST', 'PUT']:
-                self.add_header('Content-Type', 'application/json')
-        else:
+        if data not in ['DELETE', 'GET', 'POST', 'PUT']:
             raise AttributeError(ErrorCodes.e6000.value.format(data))
+        self._http_method = data
+
+        # set content type for commit methods
+        if self._content_type is None and data in ['POST', 'PUT']:
+            self.add_header('Content-Type', 'application/json')
 
     def set_modified_since(self, data):
         """ set modified since for indicator requests """
@@ -246,8 +243,10 @@ class RequestObject(object):
 
     def __str__(self):
         """ """
-        printable_string = '\n{0!s:_^80}\n'.format('Request Object')
-        printable_string += '{0!s:40}\n'.format('Metadata')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Request Object'
+        ) + '{0!s:40}\n'.format('Metadata')
+
         printable_string += '  {0!s:<29}{1!s:<50}\n'.format('Description', self.description)
 
         #

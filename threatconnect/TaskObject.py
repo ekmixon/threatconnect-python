@@ -180,10 +180,8 @@ class TaskObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     #
     # urlsafe
@@ -289,13 +287,12 @@ class TaskObject(object):
 
     def set_id(self, data, update=True):
         """Read-Only task metadata"""
-        if isinstance(data, (int, long)):
-            self._id = data
-
-            if update:
-                self._phase = 2
-        else:
+        if not isinstance(data, (int, long)):
             raise RuntimeError(ErrorCodes.e10020.value.format(data))
+        self._id = data
+
+        if update:
+            self._phase = 2
 
     #
     # matched filters
@@ -473,12 +470,10 @@ class TaskObject(object):
     @property
     def validate(self):
         """ validate all required fields """
-        for prop, values in self._properties.items():
-            if values['required']:
-                if getattr(self, prop) is None:
-                    return False
-
-        return True
+        return not any(
+            values['required'] and getattr(self, prop) is None
+            for prop, values in self._properties.items()
+        )
 
     #
     # add print method
@@ -486,12 +481,10 @@ class TaskObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Task Resource Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Task Resource Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('id', self.id))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('name', self.name))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('resource_type', self.resource_type))
@@ -709,10 +702,12 @@ class TaskObjectAdvanced(TaskObject):
     @property
     def gen_body(self):
         """ generate json body for POST and PUT API requests """
-        body_dict = {}
-        for prop, values in self._properties.items():
-            if getattr(self, prop) is not None:
-                body_dict[values['api_field']] = getattr(self, prop)
+        body_dict = {
+            values['api_field']: getattr(self, prop)
+            for prop, values in self._properties.items()
+            if getattr(self, prop) is not None
+        }
+
         return json.dumps(body_dict)
 
     def commit(self):
@@ -780,22 +775,20 @@ class TaskObjectAdvanced(TaskObject):
                 if 'content-type' in api_response2.headers:
                     if api_response2.headers['content-type'] == 'application/json':
                         api_response_dict2 = api_response2.json()
-                        if api_response_dict2['status'] != 'Success':
-                            self._tc.tcl.error('API Request Failure: [{0}]'.format(ro.description))
-                        else:
+                        if api_response_dict2['status'] == 'Success':
                             if ro.success_callback is not None:
                                 ro.success_callback(ro, api_response2)
+                        else:
+                            self._tc.tcl.error('API Request Failure: [{0}]'.format(ro.description))
                     elif api_response2.headers['content-type'] == 'application/octet-stream':
                         if api_response2.status_code in [200, 201, 202]:
                             self.set_contents(ro.body)
                             if ro.success_callback is not None:
                                 ro.success_callback(ro, api_response2)
-                else:
-                    # upload PUT response
-                    if api_response2.status_code in [200, 201, 202]:
-                        self.set_contents(ro.body)
-                        if ro.success_callback is not None:
-                            ro.success_callback(ro, api_response2)
+                elif api_response2.status_code in [200, 201, 202]:
+                    self.set_contents(ro.body)
+                    if ro.success_callback is not None:
+                        ro.success_callback(ro, api_response2)
 
             # clear the commit queue
             self._resource_container.clear_commit_queue_id(self.id)
@@ -815,10 +808,7 @@ class TaskObjectAdvanced(TaskObject):
     def csv(self):
         """ return the object in json format """
 
-        csv_dict = {}
-        for k, v in self._basic_structure.items():
-            csv_dict[k] = getattr(self, v)
-
+        csv_dict = {k: getattr(self, v) for k, v in self._basic_structure.items()}
         outfile = StringIO()
         writer = csv.DictWriter(outfile, fieldnames=sorted(csv_dict.keys()))
 
@@ -830,10 +820,7 @@ class TaskObjectAdvanced(TaskObject):
     def csv_header(self):
         """ return the object in json format """
 
-        csv_dict = {}
-        for k, v in self._basic_structure.items():
-            csv_dict[k] = v
-
+        csv_dict = dict(self._basic_structure.items())
         outfile = StringIO()
         # not support in python 2.6
         # writer = csv.DictWriter(outfile, fieldnames=sorted(csv_dict.keys()))
@@ -1033,21 +1020,16 @@ class TaskObjectAdvanced(TaskObject):
     @property
     def json(self):
         """ return the object in json format """
-        json_dict = {}
-        for k, v in self._structure.items():
-            json_dict[k] = getattr(self, v)
-
+        json_dict = {k: getattr(self, v) for k, v in self._structure.items()}
         return json.dumps(json_dict, indent=4, sort_keys=True)
 
     @property
     def keyval(self):
         """ return the object in json format """
-        keyval_str = ''
-        for k, v in sorted(self._structure.items()):
-            # handle file indicators
-            keyval_str += '{0}="{1}" '.format(k, getattr(self, v))
-
-        return keyval_str
+        return ''.join(
+            '{0}="{1}" '.format(k, getattr(self, v))
+            for k, v in sorted(self._structure.items())
+        )
 
     def load_attributes(self, automatically_reload=False):
         self._reload_attributes = automatically_reload

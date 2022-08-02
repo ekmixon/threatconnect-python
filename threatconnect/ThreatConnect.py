@@ -166,7 +166,7 @@ class ThreatConnect:
                 err_data = token_response.json().get('message')
             else:
                 err_data = token_response.text
-            err = 'Could not refresh ThreatConnect Token ({}).'.format(err_data)
+            err = f'Could not refresh ThreatConnect Token ({err_data}).'
             raise RuntimeError(err)
 
         # bcs - return new token and set expiration date
@@ -356,7 +356,7 @@ class ThreatConnect:
         #
         # api request (gracefully handle temporary communications issues with the API)
         #
-        for i in range(1, self._api_retries + 1, 1):
+        for i in range(1, self._api_retries + 1):
             try:
                 api_response = self._session.send(
                     request_prepped, verify=self._verify_ssl, timeout=self._api_request_timeout,
@@ -412,14 +412,11 @@ class ThreatConnect:
         # valid status codes 200, 201, 202
         # if api_response.status_code in [400, 401, 403, 500, 503]:
         if api_response.status_code not in [200, 201, 202]:
-            # check for non critical errors that have bad status codes
-            nce_found = False
             fail_msg = api_response.content
-            for nce in non_critical_errors:
-                # api_response_dict['message'] not in non_critical_errors:
-                if re.findall(nce, api_response.content):
-                    nce_found = True
-                    break
+            nce_found = any(
+                re.findall(nce, api_response.content)
+                for nce in non_critical_errors
+            )
 
             if ro.failure_callback is not None:
                 ro.failure_callback(api_response.status_code)

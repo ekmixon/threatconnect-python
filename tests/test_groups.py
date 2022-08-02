@@ -14,8 +14,7 @@ utility.start()
 @pytest.fixture
 def tc():
     """Initialize instance of TC SDK."""
-    tc = threatconnect.ThreatConnect('accessId', 'secretKey', 'System', '//')
-    return tc
+    return threatconnect.ThreatConnect('accessId', 'secretKey', 'System', '//')
 
 
 def test_group_retrieval(tc):

@@ -134,10 +134,8 @@ class OwnerMetricsObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     """ shared metric resolution methods """
     #
@@ -587,13 +585,12 @@ class OwnerMetricsObject(object):
     def __str__(self):
         """allow object to be displayed with print"""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Metric')
+        printable_string = '\n{0!s:_^80}\n'.format('Metric') + (
+            '  {0!s:<32}: {1!s:<50}\n'.format(
+                'average_indicator_confidence', self.average_indicator_confidence
+            )
+        )
 
-        #
-        # retrievable methods
-        #
-
-        printable_string += ('  {0!s:<32}: {1!s:<50}\n'.format('average_indicator_confidence', self.average_indicator_confidence))
         printable_string += ('  {0!s:<32}: {1!s:<50}\n'.format('average_indicator_rating', self.average_indicator_rating))
         printable_string += ('  {0!s:<32}: {1!s:<50}\n'.format('metric_date', self.metric_date))
         printable_string += ('  {0!s:<32}: {1!s:<50}\n'.format('total_address', self.total_address))

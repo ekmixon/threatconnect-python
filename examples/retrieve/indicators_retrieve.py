@@ -237,7 +237,7 @@ def main():
 
         # optionally set modified since date
         # NOTE: modified_since only works with the base url (/v2/indicators)
-        modified_since = (datetime.isoformat(datetime(2015, 6, 17))) + 'Z'
+        modified_since = f'{datetime.isoformat(datetime(2015, 6, 17))}Z'
         indicators.set_modified_since(modified_since)
 
         # filter results
@@ -254,8 +254,6 @@ def main():
             filter1.add_owner(owners)
         except AttributeError as e:
             print(e)
-            pass
-
         # retrieve indicators
         try:
             indicators.retrieve()

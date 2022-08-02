@@ -136,12 +136,10 @@ class BatchJobObject(object):
     @property
     def validate(self):
         """ validate all required fields """
-        for prop, values in self._properties.items():
-            if values['required']:
-                if getattr(self, prop) is None:
-                    return False
-
-        return True
+        return not any(
+            values['required'] and getattr(self, prop) is None
+            for prop, values in self._properties.items()
+        )
 
     #
     # phase
@@ -271,30 +269,27 @@ class BatchJobObjectAdvanced(BatchJobObject):
     @property
     def gen_body(self):
         """ generate json body for POST and PUT API requests """
-        body_dict = {}
-        for prop, values in self._properties.items():
-            if getattr(self, prop) is not None:
-                body_dict[values['api_field']] = getattr(self, prop)
+        body_dict = {
+            values['api_field']: getattr(self, prop)
+            for prop, values in self._properties.items()
+            if getattr(self, prop) is not None
+        }
+
         return json.dumps(body_dict)
     
     @property
     def json(self):
         """ return the object in json format """
-        json_dict = {}
-        for k, v in self._structure.items():
-            json_dict[k] = getattr(self, v)
-
+        json_dict = {k: getattr(self, v) for k, v in self._structure.items()}
         return json.dumps(json_dict, indent=4, sort_keys=True)
     
     @property
     def keyval(self):
         """ return the object in json format """
-        keyval_str = ''
-        for k, v in sorted(self._structure.items()):
-            # handle file indicators
-            keyval_str += '{0}="{1}" '.format(k, getattr(self, v))
-
-        return keyval_str
+        return ''.join(
+            '{0}="{1}" '.format(k, getattr(self, v))
+            for k, v in sorted(self._structure.items())
+        )
 
     def commit(self):
         """ commit victim and related assets, associations """

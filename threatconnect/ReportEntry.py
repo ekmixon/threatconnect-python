@@ -150,12 +150,10 @@ class ReportEntry(object):
     def __str__(self):
         """ add print method to object """
 
-        printable_string = '\n{0!s:_^80}\n'.format('Report Entry')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Report Entry'
+        ) + '\n{0!s:40}\n'.format('Properties')
 
-        #
-        # status
-        #
-        printable_string += '\n{0!s:40}\n'.format('Properties')
         printable_string += ('{0!s:<30}: {1!s:<50}\n'.format('Status Code', self.status_code))
         if self.failure_msg is not None:
             printable_string += ('{0!s:<30}: {1!s:<50}\n'.format('Fail Msg', self.failure_msg))

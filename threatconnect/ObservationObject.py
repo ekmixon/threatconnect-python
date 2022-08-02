@@ -30,10 +30,8 @@ class ObservationObject(object):
             return data
         elif isinstance(data, unicode):
             return unicode(data.encode('utf-8').strip(), errors='ignore')  # re-encode poorly encoded unicode
-        elif not isinstance(data, unicode):
-            return unicode(data, 'utf-8', errors='ignore')
         else:
-            return data
+            return unicode(data, 'utf-8', errors='ignore')
 
     #
     # count
@@ -65,12 +63,10 @@ class ObservationObject(object):
     def __str__(self):
         """Allow object to be displayed with print."""
 
-        printable_string = '\n{0!s:_^80}\n'.format('Observation Object Properties')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Observation Object Properties'
+        ) + '{0!s:40}\n'.format('Retrievable Methods')
 
-        #
-        # retrievable methods
-        #
-        printable_string += '{0!s:40}\n'.format('Retrievable Methods')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('count', self.count))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('date_observed', self.date_observed))
 

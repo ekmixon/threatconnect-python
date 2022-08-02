@@ -32,7 +32,5 @@ def main():
     for argument, datum in config.defaults().items():
         arguments.extend([argument, datum])
 
-    command = ['python', args.target]
-    command.extend(arguments)
-
+    command = ['python', args.target, *arguments]
     subprocess.call(command)

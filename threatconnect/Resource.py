@@ -145,13 +145,15 @@ class Resource(object):
         # use name if id is not available
         if hasattr(data_obj, 'name'):
             resource_name = data_obj.name
-            if resource_name is not None:
-                if resource_name not in self._object_res_name_idx:
-                    self._object_res_name_idx.setdefault(resource_name, []).append(data_obj)
+            if (
+                resource_name is not None
+                and resource_name not in self._object_res_name_idx
+            ):
+                self._object_res_name_idx.setdefault(resource_name, []).append(data_obj)
 
-                    # only do this if the object has no id
-                    if not has_id:
-                        self._objects.append(data_obj)
+                # only do this if the object has no id
+                if not has_id:
+                    self._objects.append(data_obj)
 
     def add_filter(self, resource_type=None):
         """ """
@@ -185,21 +187,20 @@ class Resource(object):
                 if indx is None:
                     continue
 
-                if indx.upper() not in self._master_res_id_idx:
+                if indx.upper() in self._master_res_id_idx:
+                    resource_object_id = id(self._master_res_id_idx[indx])
+                else:
                     if init:  # only add file indicator one time
                         self._master_objects.append(data_obj)
                         init = False
                     self._master_res_id_idx.setdefault(indx.upper(), data_obj)
                     duplicate = False
-                else:
-                    resource_object_id = id(self._master_res_id_idx[indx])
+        elif index not in self._master_res_id_idx:
+            self._master_objects.append(data_obj)
+            self._master_res_id_idx.setdefault(index, data_obj)
+            duplicate = False
         else:
-            if index not in self._master_res_id_idx:
-                self._master_objects.append(data_obj)
-                self._master_res_id_idx.setdefault(index, data_obj)
-                duplicate = False
-            else:
-                resource_object_id = id(self._master_res_id_idx[index])
+            resource_object_id = id(self._master_res_id_idx[index])
 
         #
         # post filters indexes
@@ -208,94 +209,92 @@ class Resource(object):
             #
             # confidence index
             #
-            if hasattr(data_obj, 'confidence'):
-                if data_obj.confidence is not None:
-                    self._confidence_idx.setdefault(
-                        data_obj.confidence, []).append(data_obj)
+            if hasattr(data_obj, 'confidence') and data_obj.confidence is not None:
+                self._confidence_idx.setdefault(
+                    data_obj.confidence, []).append(data_obj)
 
             #
             # date added index
             #
-            if hasattr(data_obj, 'date_added'):
-                if data_obj.date_added is not None:
-                    date_added = data_obj.date_added
-                    date_added = dateutil.parser.parse(date_added)
-                    date_added_seconds = int(time.mktime(date_added.timetuple()))
-                    self._date_added_idx.setdefault(date_added_seconds, []).append(data_obj)
+            if hasattr(data_obj, 'date_added') and data_obj.date_added is not None:
+                date_added = data_obj.date_added
+                date_added = dateutil.parser.parse(date_added)
+                date_added_seconds = int(time.mktime(date_added.timetuple()))
+                self._date_added_idx.setdefault(date_added_seconds, []).append(data_obj)
 
             #
             # file type index
             #
-            if hasattr(data_obj, 'file_type'):
-                if data_obj.file_type is not None:
-                    self._file_type_idx.setdefault(data_obj.file_type, []).append(data_obj)
+            if hasattr(data_obj, 'file_type') and data_obj.file_type is not None:
+                self._file_type_idx.setdefault(data_obj.file_type, []).append(data_obj)
 
             #
             # last modified index
             #
-            if hasattr(data_obj, 'last_modified'):
-                if data_obj.last_modified is not None:
-                    last_modified = data_obj.last_modified
-                    last_modified = dateutil.parser.parse(last_modified)
-                    last_modified_seconds = int(time.mktime(last_modified.timetuple()))
-                    self._last_modified_idx.setdefault(last_modified_seconds, []).append(data_obj)
+            if (
+                hasattr(data_obj, 'last_modified')
+                and data_obj.last_modified is not None
+            ):
+                last_modified = data_obj.last_modified
+                last_modified = dateutil.parser.parse(last_modified)
+                last_modified_seconds = int(time.mktime(last_modified.timetuple()))
+                self._last_modified_idx.setdefault(last_modified_seconds, []).append(data_obj)
 
             #
             # name index
             #
-            if hasattr(data_obj, 'name'):
-                if data_obj.name is not None:
-                    self._name_idx.setdefault(
-                        data_obj.name, []).append(data_obj)
+            if hasattr(data_obj, 'name') and data_obj.name is not None:
+                self._name_idx.setdefault(
+                    data_obj.name, []).append(data_obj)
 
             #
             # rating index
             #
-            if hasattr(data_obj, 'rating'):
-                if data_obj.rating is not None:
-                    self._rating_idx.setdefault(
-                        data_obj.rating, []).append(data_obj)
+            if hasattr(data_obj, 'rating') and data_obj.rating is not None:
+                self._rating_idx.setdefault(
+                    data_obj.rating, []).append(data_obj)
 
             #
             # threat assess confidence index
             #
-            if hasattr(data_obj, 'threat_assess_confidence'):
-                if data_obj.threat_assess_confidence is not None:
-                    self._threat_assess_confidence_idx.setdefault(
-                        data_obj.threat_assess_confidence, []).append(data_obj)
+            if (
+                hasattr(data_obj, 'threat_assess_confidence')
+                and data_obj.threat_assess_confidence is not None
+            ):
+                self._threat_assess_confidence_idx.setdefault(
+                    data_obj.threat_assess_confidence, []).append(data_obj)
 
             #
             # threat assess rating index
             #
-            if hasattr(data_obj, 'threat_assess_rating'):
-                if data_obj.threat_assess_rating is not None:
-                    self._threat_assess_rating_idx.setdefault(
-                        data_obj.threat_assess_rating, []).append(data_obj)
+            if (
+                hasattr(data_obj, 'threat_assess_rating')
+                and data_obj.threat_assess_rating is not None
+            ):
+                self._threat_assess_rating_idx.setdefault(
+                    data_obj.threat_assess_rating, []).append(data_obj)
 
             #
             # type index
             #
-            if hasattr(data_obj, 'type'):
-                if data_obj.type is not None:
-                    self._type_idx.setdefault(data_obj.type, []).append(data_obj)
+            if hasattr(data_obj, 'type') and data_obj.type is not None:
+                self._type_idx.setdefault(data_obj.type, []).append(data_obj)
 
             #
             # attributes (nested object)
             #
-            if hasattr(data_obj, 'attributes'):
-                if len(data_obj.attributes) > 0:
-                    for attribute_obj in data_obj.attributes:
-                        self._attribute_idx.setdefault(
-                            attribute_obj.type, []).append(data_obj)
+            if hasattr(data_obj, 'attributes') and len(data_obj.attributes) > 0:
+                for attribute_obj in data_obj.attributes:
+                    self._attribute_idx.setdefault(
+                        attribute_obj.type, []).append(data_obj)
 
             #
             # tags (nested object)
             #
-            if hasattr(data_obj, 'tags'):
-                if len(data_obj.tags) > 0:
-                    for tag_obj in data_obj.tags:
-                        self._tag_idx.setdefault(
-                            tag_obj.name, []).append(data_obj)
+            if hasattr(data_obj, 'tags') and len(data_obj.tags) > 0:
+                for tag_obj in data_obj.tags:
+                    self._tag_idx.setdefault(
+                        tag_obj.name, []).append(data_obj)
 
         return resource_object_id
 
@@ -375,11 +374,10 @@ class Resource(object):
 
     def filter_name(self, data, operator, description):
         """Post Filter"""
-        if operator == FilterOperator.EQ:
-            if data in self._name_idx:
-                for data_obj in self._name_idx[data]:
-                    data_obj.add_matched_filter(description)
-                    yield data_obj
+        if operator == FilterOperator.EQ and data in self._name_idx:
+            for data_obj in self._name_idx[data]:
+                data_obj.add_matched_filter(description)
+                yield data_obj
         """ NO OTHER STRING COMPARISON SUPPORTED AT THIS TIME """
         # else:
         #     for key, data_obj_list in self._rating_idx.items():
@@ -473,9 +471,8 @@ class Resource(object):
         """ """
         if data in self._master_res_id_idx:
             return self._method_wrapper(self._master_res_id_idx[data])
-        else:
-            self.tcl.warning(ErrorCodes.e10013.value.format(data))
-            return None
+        self.tcl.warning(ErrorCodes.e10013.value.format(data))
+        return None
 
     def retrieve(self):
         """ """
@@ -489,8 +486,7 @@ class Resource(object):
 
     def commit_queue(self, resource_id):
         if resource_id in self._commit_queue:
-            for ro in self._commit_queue[resource_id]:
-                yield ro
+            yield from self._commit_queue[resource_id]
 
     def clear_commit_queue(self):
         """ clear request object """

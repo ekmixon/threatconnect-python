@@ -70,18 +70,12 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
         if indicator.type is None:
             indicator.set_type('Address')  # set type before indicator
 
-    #
-    # email address
-    #
     elif 'address' in indicator_dict:
         indicator = EmailAddressIndicatorObject(indicator)
         indicator.set_indicator(indicator_dict['address'])
         if indicator.type is None:
             indicator.set_type('EmailAddress')  # set type before indicator
 
-    #
-    # files
-    #
     elif any(x for x in ['md5', 'sha1', 'sha256'] if x in indicator_dict):
         indicator = FileIndicatorObject(indicator)
 
@@ -103,9 +97,6 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
         if 'size' in indicator_dict:
             indicator.set_size(indicator_dict['size'], update=False)
 
-    #
-    # hosts
-    #
     elif any(x for x in ['hostName', 'dnsActive', 'whoisActive'] if x in indicator_dict):
         indicator = HostIndicatorObject(indicator)
         if 'hostName' in indicator_dict:
@@ -119,9 +110,6 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
         if 'whoisActive' in indicator_dict:
             indicator.set_whois_active(indicator_dict['whoisActive'], update=False)
 
-    #
-    # urls
-    #
     elif any(x for x in ['text', 'source'] if x in indicator_dict):
         indicator = UrlIndicatorObject(indicator)
         if 'text' in indicator_dict:
@@ -130,9 +118,6 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
         if 'source' in indicator_dict:
             indicator.set_source(indicator_dict['source'], update=False)
 
-    #
-    # summmary means we got all indicators
-    #
     elif 'summary' in indicator_dict and indicator.indicator is None:
         indicator_val = indicator_dict.get('summary')
         resource_type = get_resource_type(indicators_regex, indicator_val)
@@ -146,7 +131,10 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
 
             custom_indicator_type = indicator_parser.get_custom_indicator_type_by_name(_type)
             if custom_indicator_type is None:
-                raise AttributeError("Type is not currently supported for Custom Indicator initialization: {}".format(_type))
+                raise AttributeError(
+                    f"Type is not currently supported for Custom Indicator initialization: {_type}"
+                )
+
 
             indicator.set_api_entity(custom_indicator_type.api_entity)
             indicator.set_api_branch(custom_indicator_type.api_branch)
@@ -156,7 +144,7 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
             field_values = indicator_val.split(' : ')
             custom_fields = OrderedDict()
 
-            for i in range(0, len(field_values)):
+            for i in range(len(field_values)):
                 try:
                     custom_fields[field_names[i]] = field_values[i]
                 except IndexError:
@@ -182,9 +170,6 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
             indicator = typed_indicator
             indicator.set_indicator(indicator_dict['summary'], resource_type)
 
-    #
-    # custom indicators
-    #
     else:
         indicator = CustomIndicatorObject(indicator)
         # type MUST exist as well as tc_obj for us to continue
@@ -194,7 +179,10 @@ def parse_typed_indicator(indicator_dict, resource_obj=None, api_filter=None,
 
         custom_indicator_type = indicator_parser.get_custom_indicator_type_by_name(_type)
         if custom_indicator_type is None:
-            raise AttributeError("Type is not currently supported for Custom Indicator initialization: {}".format(_type))
+            raise AttributeError(
+                f"Type is not currently supported for Custom Indicator initialization: {_type}"
+            )
+
 
         indicator.set_api_entity(custom_indicator_type.api_entity)
         indicator.set_api_branch(custom_indicator_type.api_branch)
@@ -391,9 +379,10 @@ class IndicatorObjectParser(object):
                     field_types_with_nones = [indicator_type.get('value{0!s}Type'.format(i), None) for i in range(1, 4)]
                     field_types = [field_type for field_type in field_types_with_nones if field_type]
 
-                    fields = []
-                    for i in range(0, len(field_names)):
-                        fields.append(CustomIndicatorField(field_names[i], type=field_types[i]))
+                    fields = [
+                        CustomIndicatorField(field_names[i], type=field_types[i])
+                        for i in range(len(field_names))
+                    ]
 
                     types.append(CustomIndicatorType(
                         name=indicator_type.get('name'),
@@ -411,10 +400,14 @@ class IndicatorObjectParser(object):
         return self._custom_indicator_types
 
     def get_custom_indicator_type_by_api_entity(self, api_entity):
-        for custom_indicator_type in self.custom_indicator_types:
-            if custom_indicator_type.api_entity == api_entity:
-                return custom_indicator_type
-        return None
+        return next(
+            (
+                custom_indicator_type
+                for custom_indicator_type in self.custom_indicator_types
+                if custom_indicator_type.api_entity == api_entity
+            ),
+            None,
+        )
 
     def exists_api_entity_in_custom_indicator_types(self, api_entity):
         return self.get_custom_indicator_type_by_api_entity(api_entity) is None
@@ -425,10 +418,14 @@ class IndicatorObjectParser(object):
         return [field.label for field in fields]
 
     def get_custom_indicator_type_by_name(self, name):
-        for custom_indicator_type in self.custom_indicator_types:
-            if custom_indicator_type.name == name:
-                return custom_indicator_type
-        return None
+        return next(
+            (
+                custom_indicator_type
+                for custom_indicator_type in self.custom_indicator_types
+                if custom_indicator_type.name == name
+            ),
+            None,
+        )
 
     def exists_name_in_custom_indicator_types(self, name):
         return self.get_custom_indicator_type_by_name(name) is None
@@ -456,7 +453,10 @@ class IndicatorObjectParser(object):
 
             custom_i_type = self.get_custom_indicator_type_by_api_entity(api_entity)
             if custom_i_type is None:
-                raise AttributeError('No Custom Indicator data available for api_entity: {}'.format(api_entity))
+                raise AttributeError(
+                    f'No Custom Indicator data available for api_entity: {api_entity}'
+                )
+
 
             indicator.set_api_branch(custom_i_type.api_branch)
             indicator.set_api_entity(custom_i_type.api_entity)

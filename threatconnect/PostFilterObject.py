@@ -55,12 +55,10 @@ class PostFilterObject(object):
     def __str__(self):
         """ allow object to be displayed with print """
 
-        printable_string = '\n{0!s:_^80}\n'.format('Post Filter Object')
+        printable_string = '\n{0!s:_^80}\n'.format(
+            'Post Filter Object'
+        ) + '{0!s:40}\n'.format('Filter Properties')
 
-        #
-        # filter properties
-        #
-        printable_string += '{0!s:40}\n'.format('Filter Properties')
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('description', self.description))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('filter', self.filter))
         printable_string += ('  {0!s:<28}: {1!s:<50}\n'.format('method', self.method))

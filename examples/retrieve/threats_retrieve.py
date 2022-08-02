@@ -218,8 +218,6 @@ def main():
             filter1.add_owner(owners)
         except AttributeError as e:
             print('Error: {0!s}'.format(e))
-            pass
-
         # retrieve resource
         try:
             threats.retrieve()
